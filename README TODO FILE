@@ -1,0 +1,102 @@
+// ============================
+// TestIterator (List iteration)
+// ============================
+
+ //Before each test:
+    // TODO Question: Also try with a LinkedList - does it make any difference?
+    // Behaviorally, iterators work the same for ArrayList and LinkedList.
+    // Performance differences are not noticeable for small lists.
+    list = new ArrayList of Integer
+    // list = new LinkedList of Integer  // optional
+
+After each test:
+    list = null
+
+TestEmpty:
+    iterator = list.iterator()
+    assert iterator.hasNext() is false
+
+ //TestNonEmpty:
+    list.add(33, 77, 44, 77, 55, 77, 66)
+    iterator = list.iterator()
+    // Check that iterator returns all values in order
+    assert iterator.next() == 33
+    assert iterator.next() == 77
+    assert iterator.next() == 44
+    assert iterator.next() == 77
+    assert iterator.next() == 55
+    assert iterator.next() == 77
+    assert iterator.next() == 66
+    assert iterator.hasNext() is false
+
+TestRemove:
+    list.add(33, 77, 44, 77, 55, 77, 66)
+    iterator = list.iterator()
+    while iterator.hasNext():
+        value = iterator.next()
+        if value == 77:
+            iterator.remove()  // safe removal during iteration
+            // TODO Question: Using list.remove(Integer.valueOf(77)) would throw
+            // ConcurrentModificationException during iteration
+    // Remaining list should be: 33, 44, 55, 66
+    assert list == [33, 44, 55, 66]
+
+TestAverageValues:
+    list.add(33, 77, 44, 77, 55, 77, 66)
+    sum = 0
+    n = 0
+    iterator = list.iterator()
+    while iterator.hasNext():
+        sum += iterator.next()
+        n += 1
+    average = sum / n
+    assert average ≈ 61.3
+    assert n == 7
+
+// ============================
+// TestPerformance (ArrayList vs LinkedList)
+// ============================
+
+Before each test:
+    arrayList = new ArrayList
+    linkedList = new LinkedList
+
+After each test:
+    arrayList = null
+    linkedList = null
+PrepareLists(SIZE):
+    clear arrayList and linkedList
+    for i from 0 to SIZE-1:
+        arrayList.add(i)
+        linkedList.add(i)
+
+TestAddRemove(list, name):
+    start timer
+    for r from 0 to REPS-1:
+        list.add(0, 77)       // add at front
+        list.remove(0)        // remove from front
+    end timer
+    print name + " add/remove runtime: " + elapsed_time
+    // TODO Question: LinkedList performs better than ArrayList
+    // for add/remove at the front because LinkedList inserts/removes in O(1),
+    // while ArrayList shifts elements O(n)
+
+TestAccess(list, name):
+    sum = 0
+    start timer
+    size = length of list
+    for r from 0 to REPS-1:
+        sum += list.get(r % size)
+    end timer
+    print name + " access runtime: " + elapsed_time
+    assert sum >= 0
+    // TODO Question: ArrayList performs better for random access because
+    // it has O(1) get, while LinkedList has O(n) get
+
+RunAllPerformanceTests:
+    for SIZE in [10, 100, 1000, 10000, 100000]:
+        PrepareLists(SIZE)
+        TestAddRemove(arrayList, "ArrayList")
+        TestAddRemove(linkedList, "LinkedList")
+        TestAccess(arrayList, "ArrayList")
+        TestAccess(linkedList, "
